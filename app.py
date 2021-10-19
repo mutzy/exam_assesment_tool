@@ -123,13 +123,15 @@ app = Flask(__name__)
 app.debug = True
 app.env = 'Development'
 app.config['SECRET_KEY'] = 'thisisasecret'
-# app.config['UPLOAD_FOLDER'] = './assets'
+app.config['UPLOAD_FOLDER'] = 'static'
+
+
 @app.route('/',methods=['GET','POST'])
 def index():
 	if request.method == "POST" and request.files['file'].filename != '':
 		f = request.files['file']
 		filename = secure_filename(f.filename)
-		d = os.path.join('static',filename)
+		d = os.path.join(app.config['UPLOAD_FOLDER'],filename)
 		f.save(d)
 		scor = omr_proc(f.filename)
 		return render_template('index.html',score=scor, disp=d)
