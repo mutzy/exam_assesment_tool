@@ -6,6 +6,7 @@ import argparse
 import imutils
 import cv2
 from flask import Flask, render_template, request
+from werkzeug.utils import secure_filename
 
 def omr_proc(student_paper):
 	# construct the argument parse and parse the arguments
@@ -125,9 +126,11 @@ app.config['SECRET_KEY'] = 'thisisasecret'
 @app.route('/',methods=['GET','POST'])
 def index():
 	if request.method == "POST" and request.files['file'].filename != '':
-		score = omr_proc(request.files['file'].filename)
-		return render_template('index.html',score=score)
-	return render_template('index.html')
+		f = request.files['file']
+		f.save(secure_filename(f.filename))
+		scor = omr_proc(f.filename)
+		return render_template('index.html',score=scor)
+	return render_template('index.html',score='')
 
 if __name__ == "__main__":
 	app.run()
