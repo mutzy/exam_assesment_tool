@@ -5,6 +5,7 @@ import numpy as np
 import argparse
 import imutils
 import cv2
+import os
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
 
@@ -122,14 +123,16 @@ app = Flask(__name__)
 app.debug = True
 app.env = 'Development'
 app.config['SECRET_KEY'] = 'thisisasecret'
-
+# app.config['UPLOAD_FOLDER'] = './assets'
 @app.route('/',methods=['GET','POST'])
 def index():
 	if request.method == "POST" and request.files['file'].filename != '':
 		f = request.files['file']
-		f.save(secure_filename(f.filename))
+		filename = secure_filename(f.filename)
+		d = os.path.join('static',filename)
+		f.save(d)
 		scor = omr_proc(f.filename)
-		return render_template('index.html',score=scor)
+		return render_template('index.html',score=scor, disp=d)
 	return render_template('index.html',score='')
 
 if __name__ == "__main__":
