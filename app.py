@@ -8,6 +8,7 @@ import cv2
 import os
 from flask import Flask, render_template, request
 from werkzeug.utils import secure_filename
+import base64
 
 def omr_proc(student_paper):
 	# construct the argument parse and parse the arguments
@@ -109,12 +110,12 @@ def omr_proc(student_paper):
 	# grab the test taker
 
 	score = (correct / 5.0) * 100
-	return score
+	
 	# print("[INFO] score: {:.2f}%".format(score))
-	# cv2.putText(paper, "{:.2f}%".format(score), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
+	cv2.putText(paper, "{:.2f}%".format(score), (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 255), 2)
 	# imgv = cv2.imshow("Original", image)
 	#cv2.imshow("Exam", paper)
-
+	return paper
 	# cv2.waitKey(0)
 
 
@@ -134,7 +135,9 @@ def index():
 		d = os.path.join(app.config['UPLOAD_FOLDER'],filename)
 		f.save(d)
 		scor = omr_proc(f.filename)
-		return render_template('index.html',score=scor, disp=d)
+		cv2.imwrite(os.path.join(app.config['UPLOAD_FOLDER'],'result.png'),scor)
+		res = os.path.join(app.config['UPLOAD_FOLDER'],'result.png')
+		return render_template('index.html',score=scor, disp=res)
 	return render_template('index.html',score='')
 
 if __name__ == "__main__":
